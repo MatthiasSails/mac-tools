@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Label -->
+  <key>Label</key>
+  <string>com.matthias.mac-tools-sync</string>
+
+  <!-- Run git pull + make install every hour -->
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <!-- The command -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>cd /Volumes/Rocket_2/DEV/mac-tools &amp;&amp; git pull --ff-only &amp;&amp; make install</string>
+  </array>
+
+  <!-- Only run when the SSD is mounted -->
+  <key>WatchPaths</key>
+  <array>
+    <string>/Volumes/Rocket_2/DEV/mac-tools</string>
+  </array>
+
+  <!-- Logging -->
+  <key>StandardOutPath</key>
+  <string>/tmp/mac-tools-sync.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/mac-tools-sync.err</string>
+
+  <!-- Don't thrash if it fails -->
+  <key>ThrottleInterval</key>
+  <integer>300</integer>
+</dict>
+</plist>
