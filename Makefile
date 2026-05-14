@@ -4,7 +4,7 @@ REPO_DIR    := $(shell pwd)
 .PHONY: install deps update
 
 ## install – symlink all tools into ~/bin and install dependencies
-install: deps
+install: brew deps
 	@mkdir -p $(INSTALL_DIR)
 	@for f in $(REPO_DIR)/bin/*; do \
 		name=$$(basename $$f); \
@@ -14,10 +14,15 @@ install: deps
 	done
 	@echo "✓  install done"
 
-## deps – install Python dependencies for all tools
+## brew – install Homebrew packages from Brewfile
+brew:
+	brew bundle install --file=$(REPO_DIR)/Brewfile
+	@echo "✓  brew done"
+
+## deps – create venv if needed and install dependencies
 deps:
-	@pip3 install --break-system-packages -q \
-		$$(cat $(REPO_DIR)/*/requirements.txt 2>/dev/null | sort -u)
+	@test -d $(REPO_DIR)/.venv || python3 -m venv $(REPO_DIR)/.venv
+	@$(REPO_DIR)/.venv/bin/pip install -q -r $(REPO_DIR)/requirements.txt
 	@echo "✓  deps done"
 
 ## update – pull latest and reinstall
