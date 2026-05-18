@@ -1,0 +1,39 @@
+# ~/.bashrc
+# Interaktive Shell-Konfiguration.
+# Wird von .bash_profile gesourct — gilt damit für alle Shell-Typen.
+
+# Nur für interaktive Shells ausführen (Sicherheitsnetz für Skripte)
+[[ $- != *i* ]] && return
+
+# ── Homebrew ──────────────────────────────────────────────────────────────────
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# ── PATH ──────────────────────────────────────────────────────────────────────
+# ~/bin kommt zuerst: eigene Tools (mac-tools) haben Vorrang vor allem anderen
+export PATH="$HOME/bin:$PATH"
+
+# ── History ───────────────────────────────────────────────────────────────────
+export HISTSIZE=10000          # Einträge im Speicher
+export HISTFILESIZE=20000      # Einträge in ~/.bash_history
+export HISTCONTROL=ignoredups:erasedups  # keine doppelten Einträge
+shopt -s histappend            # History anhängen statt überschreiben (wichtig bei mehreren Tabs)
+PROMPT_COMMAND="history -a"    # jeden Befehl sofort sichern
+
+# ── Prompt ────────────────────────────────────────────────────────────────────
+# user@host aktueller-ordner $
+# Farben: user+host in grün, Pfad in blau
+export PS1='\[\033[32m\]\u@\h\[\033[0m\] \[\033[34m\]\W\[\033[0m\] \$ '
+
+# ── Sprache & Encoding ────────────────────────────────────────────────────────
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+export EDITOR=nano             # Fallback-Editor im Terminal
+
+# ── Aliases ───────────────────────────────────────────────────────────────────
+alias ll='ls -lah'             # ausführliches Listing mit versteckten Dateien
+alias ..='cd ..'               # ein Verzeichnis hoch
+alias ...='cd ../..'           # zwei Verzeichnisse hoch
+alias gs='git status'
+alias gl='git log --oneline --graph --decorate -10'

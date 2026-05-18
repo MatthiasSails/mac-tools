@@ -1,0 +1,4 @@
+reportlab>=4.0
+pillow>=10.0
+Markdown>=3.0
+charset-normalizer

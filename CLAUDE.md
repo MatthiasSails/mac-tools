@@ -45,6 +45,19 @@ This is already done in `halfsheet.py` — never revert to raw strings.
 Generates the recipe card for the Brasilien COOPFAM Arabica Natural.
 Update this file when the recipe changes, then re-run halfsheet.
 
+## System dependencies
+
+### poppler (pdftotext, pdfinfo)
+Required for PDF text extraction and metadata reading. Not installed by default on macOS.
+
+```bash
+brew install poppler
+```
+
+Provides: `pdftotext`, `pdfinfo`, `pdfimages`. Without it, any attempt to extract text from PDFs fails silently or with "command not found".
+
+---
+
 ## Adding a new tool
 
 1. Create `<name>/` with `<name>.py` and `requirements.txt`

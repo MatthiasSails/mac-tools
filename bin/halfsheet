@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # Wrapper – resolves symlinks so the script always finds its package dir.
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
-exec python3 "$SCRIPT_DIR/../halfsheet/halfsheet.py" "$@"
+exec "$SCRIPT_DIR/../.venv/bin/python3" "$SCRIPT_DIR/../halfsheet/halfsheet.py" "$@"

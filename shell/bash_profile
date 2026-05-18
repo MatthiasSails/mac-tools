@@ -1,0 +1,5 @@
+# ~/.bash_profile
+# Login-Shell-Einstiegspunkt (macOS öffnet Terminal-Fenster als Login-Shell).
+# Gesamte Konfiguration liegt in .bashrc — wir sourcen sie hier nur.
+
+[[ -f "$HOME/.bashrc" ]] && source "$HOME/.bashrc"
