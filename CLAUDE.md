@@ -10,6 +10,11 @@ Each tool lives in its own subdirectory; `bin/` holds thin shell wrappers.
 `mac-tools/md2pdf/md2pdf.py` — Markdown → formatted A4 portrait PDF.
 Uses ReportLab `SimpleDocTemplate` + Platypus flowables.
 
+**Known limitations (relevant when targeting one-page cheat sheets):**
+- **No fenced code-block handling.** Lines starting with ``` are rendered as visible body text (the literal backticks appear in the PDF) and the lines inside the fence are each parsed individually as body paragraphs with `spaceAfter=2`. To save space, use inline backticks (`` `code` ``) or bullet lists instead of fences.
+- **Blank lines render as `Spacer(1, 2)`.** Each empty line in the MD adds vertical air. For dense layouts, strip blank lines aggressively — the parser does not require them between sections.
+- **Margins fixed at 2 cm** and styles `spaceBefore`/`leading` are hard-coded in `build_styles()`. If a cheat sheet is one line over, edit those constants rather than torturing the MD.
+
 ### halfsheet
 `mac-tools/halfsheet/halfsheet.py` — Markdown → A4 landscape **half-sheet** PDF.
 
