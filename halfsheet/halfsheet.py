@@ -60,7 +60,7 @@ def build_styles():
                               leading=leading or size * 1.3,
                               textColor=color, **kw)
     return {
-        "h1":     s("h1",  "Helvetica-Bold", 13, leading=15, color=C_HEADING),
+        "h1":     s("h1",  "Helvetica-Bold", 11, leading=13, color=C_HEADING),
         "h2":     s("h2",  "Helvetica-Bold",  9, color=C_HEADING, spaceBefore=4),
         "sub":    s("sub", "Helvetica",        8, color=colors.HexColor("#444444")),
         "body":   s("body","Helvetica",       8.5, leading=11),
@@ -126,8 +126,8 @@ def make_table(rows, styles):
         ("ROWBACKGROUNDS",(0, 1), (-1, -1), [C_ROW_ALT, colors.white]),
         ("GRID",          (0, 0), (-1, -1), 0.3, C_RULE),
         ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING",    (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING",    (0, 0), (-1, -1), 2),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
         ("LEFTPADDING",   (0, 0), (-1, -1), 5),
         ("RIGHTPADDING",  (0, 0), (-1, -1), 5),
     ])
@@ -152,13 +152,13 @@ def render(c, lines, styles):
         # H1
         if line.startswith("# "):
             h = draw_para(c, inline(line[2:]), styles["h1"], MARGIN_L, y)
-            y -= h + 2
+            y -= h + 1
 
         # H2 → rendered as uppercase section label
         elif line.startswith("## "):
-            gap(4)
-            hline(c, y); gap(5)
-            y -= section_head(c, line[3:], y) + 3
+            gap(3)
+            hline(c, y); gap(4)
+            y -= section_head(c, line[3:], y) + 2
 
         # H3 → bold body
         elif line.startswith("### "):
@@ -167,9 +167,9 @@ def render(c, lines, styles):
 
         # HR
         elif line.strip() == "---":
-            gap(3)
+            gap(2)
             hline(c, y)
-            gap(5)
+            gap(3)
 
         # Table
         elif line.startswith("|"):
@@ -224,7 +224,7 @@ def _render_bullets(c, items, styles, y):
         y -= h + 1
 
 def _bullets_height(n):
-    return n * 12
+    return n * 11
 
 def _steps_height():
     return 16

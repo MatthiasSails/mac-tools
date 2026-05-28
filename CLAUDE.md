@@ -45,10 +45,16 @@ encoding processing. Spaces and non-ASCII chars (°, ü, ö, ä, ·, –) render
 black boxes. Always wrap every cell value in a `Paragraph(str(cell), style)`.
 This is already done in `halfsheet.py` — never revert to raw strings.
 
-**Espresso recipe example:**
-`mac-tools/halfsheet/examples/espresso-brasilien.md`
-Generates the recipe card for the Brasilien COOPFAM Arabica Natural.
-Update this file when the recipe changes, then re-run halfsheet.
+**Espresso recipe examples:**
+- `mac-tools/halfsheet/examples/espresso-brasilien.md` — Brasilien COOPFAM Natural
+- `knowledgebase/nomal life/coffee/honghörnchen.md` — Honduras Honighörnchen
+
+Update the relevant `.md` file when the recipe changes, then re-run halfsheet.
+
+**If content overflows the page** (bottom sections cut off): reduce spacing constants in `halfsheet.py`:
+- `TOPPADDING` / `BOTTOMPADDING` in `make_table()` (default 2 — go lower if needed)
+- HR gaps: `gap(2)` / `gap(3)` in the `---` block of `render()`
+- H1 font size: `build_styles()` → `"h1"` entry (currently 11pt)
 
 ## System dependencies
 
