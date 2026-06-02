@@ -21,6 +21,7 @@ try:
     from reportlab.lib import colors
     from reportlab.platypus import (
         SimpleDocTemplate, Paragraph, Spacer, HRFlowable, Table, TableStyle,
+        Preformatted,
     )
 except ImportError:
     sys.exit("reportlab not found – run: pip3 install --break-system-packages reportlab")
@@ -37,6 +38,36 @@ COL_QUOTE = colors.HexColor("#4a7ab5")
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def escape_xml(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def transliterate_box(text: str) -> str:
+    """Map Unicode box-drawing / geometric glyphs to ASCII.
+
+    The ReportLab base-14 fonts (Helvetica, Courier) only cover Latin-1, so
+    box-drawing characters (U+2500–U+257F) and arrow/triangle glyphs render as
+    black boxes. ASCII art in code fences should survive PDF rendering, so we
+    fold those characters down to -, |, +, v, ^, <, >.
+    """
+    out = []
+    for ch in text:
+        o = ord(ch)
+        if ch in "─━╌╍┄┅┈┉":
+            out.append("-")
+        elif ch in "│┃╎╏┆┇┊┋":
+            out.append("|")
+        elif 0x2500 <= o <= 0x257F:          # any remaining box-drawing → corner
+            out.append("+")
+        elif ch in "▼▽":
+            out.append("v")
+        elif ch in "▲△":
+            out.append("^")
+        elif ch in "◄◀":
+            out.append("<")
+        elif ch in "►▶":
+            out.append(">")
+        else:
+            out.append(ch)
+    return "".join(out)
 
 
 def parse_inline(text: str) -> str:
@@ -70,6 +101,9 @@ def build_styles():
             fontSize=10, leading=14, textColor=COL_QUOTE,
             leftIndent=12, rightIndent=12, spaceAfter=4, spaceBefore=4,
             fontName="Helvetica-Oblique"),
+        "code": ParagraphStyle("Code", parent=base["Normal"],
+            fontName="Courier", fontSize=8, leading=9.5,
+            textColor=COL_BLUE, leftIndent=6, spaceAfter=4, spaceBefore=4),
         "cell": ParagraphStyle("Cell", parent=base["Normal"],
             fontSize=9, leading=12),
         "cell_hdr": ParagraphStyle("CellHdr", parent=base["Normal"],
@@ -107,6 +141,19 @@ def parse_markdown(lines: list[str], styles: dict, usable_width: float) -> list:
     i = 0
     while i < len(lines):
         line = lines[i].rstrip("\n")
+
+        if line.startswith("```"):
+            i += 1
+            code_lines = []
+            while i < len(lines) and not lines[i].lstrip().startswith("```"):
+                code_lines.append(lines[i].rstrip("\n"))
+                i += 1
+            i += 1  # skip closing fence
+            raw = "\n".join(code_lines)
+            raw = transliterate_box(raw)
+            raw = escape_xml(raw)
+            story += [Preformatted(raw, styles["code"]), Spacer(1, 2)]
+            continue
 
         if line.startswith("# "):
             story += [Spacer(1, 4),
