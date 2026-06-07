@@ -47,7 +47,6 @@ This is already done in `halfsheet.py` — never revert to raw strings.
 
 **Espresso recipe examples:**
 - `mac-tools/halfsheet/examples/espresso-brasilien.md` — Brasilien COOPFAM Natural
-- `knowledgebase/nomal life/coffee/honghörnchen.md` — Honduras Honighörnchen
 
 Update the relevant `.md` file when the recipe changes, then re-run halfsheet.
 
