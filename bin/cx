@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# cx — start Codex from the DEV workspace root
+# Usage: cx [codex-args...]
+exec codex -C /Volumes/Rocket_2/DEV/ "$@"
