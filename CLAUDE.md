@@ -66,6 +66,67 @@ brew install poppler
 
 Provides: `pdftotext`, `pdfinfo`, `pdfimages`. Without it, any attempt to extract text from PDFs fails silently or with "command not found".
 
+### tesseract + pytesseract + pdf2image (OCR for scanned PDFs)
+Required when a PDF contains no text layer (e.g. scanned documents from a RICOH or similar office copier). `pdftotext` returns empty output in this case.
+
+```bash
+brew install tesseract tesseract-lang poppler
+pip3 install pytesseract pdf2image --break-system-packages
+```
+
+Usage:
+```python
+import pytesseract
+from pdf2image import convert_from_path
+
+images = convert_from_path('scan.pdf', dpi=300)
+for img in images:
+    text = pytesseract.image_to_string(img, lang='deu')
+    print(text)
+```
+
+Use `lang='deu'` for German documents, `lang='eng'` for English. `tesseract-lang` installs all language packs.
+
+### numbers-parser (Apple Numbers files)
+Reads `.numbers` files directly — cell values, formulas, sheet and table names — without requiring an Excel export.
+
+```bash
+pip3 install numbers-parser --break-system-packages
+```
+
+Usage:
+```python
+from numbers_parser import Document
+
+doc = Document('file.numbers')
+for sheet in doc.sheets:
+    for table in sheet.tables:
+        for i, row in enumerate(table.iter_rows()):
+            for j, cell in enumerate(row):
+                print(cell.value, cell.formula)  # formula is None if cell has no formula
+```
+
+`.numbers` files are ZIP archives containing Apple Protobuf (`.iwa`) files. `numbers-parser` reverse-engineered the schema. For a quick visual overview without full parsing, extract `preview.jpg` from the ZIP.
+
+### EML file processing (email attachments)
+`.eml` files (dragged from Mail.app) can be parsed with Python's standard `email` library to extract attachments.
+
+```python
+import email
+
+with open('message.eml', 'rb') as f:
+    msg = email.message_from_binary_file(f)
+
+for part in msg.walk():
+    filename = part.get_filename()
+    if filename:
+        payload = part.get_payload(decode=True)
+        with open(filename, 'wb') as out:
+            out.write(payload)
+```
+
+Combine with the PDF OCR or numbers-parser pipelines above to process scanned invoices or spreadsheets received by email.
+
 ---
 
 ## Adding a new tool
