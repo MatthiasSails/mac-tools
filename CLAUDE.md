@@ -30,8 +30,15 @@ Use for: recipe cards, cheat sheets, reference cards placed next to a machine.
 ```bash
 python3 /Volumes/Rocket_2/DEV/mac-tools/halfsheet/halfsheet.py input.md
 python3 /Volumes/Rocket_2/DEV/mac-tools/halfsheet/halfsheet.py input.md -o output.pdf
+python3 /Volumes/Rocket_2/DEV/mac-tools/halfsheet/halfsheet.py input.md --scale 1.5
 ```
 Or via the installed wrapper: `halfsheet input.md`
+
+**`--scale <factor>` (default `1.0`):** uniformly enlarges fonts **and** vertical spacing,
+so the whole layout grows together instead of text overflowing fixed gaps. Use it to fill a
+larger sheet (e.g. `1.5` for an A5 reference card legible at arm's length). All spacing
+constants and the section-divider rule scale with the type, so dividers stay clear above
+their heading at any factor. `1.0` leaves output byte-for-byte unchanged.
 
 **Markdown features supported:**
 - `# Title` — large heading
