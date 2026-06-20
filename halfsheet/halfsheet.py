@@ -53,11 +53,14 @@ C_WORKFLOW = colors.HexColor("#f0f0f0")
 
 # ── Styles ────────────────────────────────────────────────────────────────────
 
+SCALE = 1.0  # set from --scale CLI arg; 1.0 = unchanged default sizing
+
 def build_styles():
     base = getSampleStyleSheet()
     def s(name, font="Helvetica", size=9, leading=None, color=colors.black, **kw):
+        size = size * SCALE
         return ParagraphStyle(name, fontName=font, fontSize=size,
-                              leading=leading or size * 1.3,
+                              leading=(leading * SCALE) if leading else size * 1.3,
                               textColor=color, **kw)
     return {
         "h1":     s("h1",  "Helvetica-Bold", 11, leading=13, color=C_HEADING),
@@ -88,11 +91,11 @@ def hline(c, y):
     c.line(MARGIN_L, y, HALF_W - MARGIN_R, y)
 
 def section_head(c, text, y):
-    c.setFont("Helvetica-Bold", 7.5)
+    c.setFont("Helvetica-Bold", 7.5 * SCALE)
     c.setFillColor(C_SECTION)
     c.drawString(MARGIN_L, y, text.upper())
     c.setFillColor(colors.black)
-    return 9
+    return 9 * SCALE
 
 def draw_para(c, text, style, x, y):
     p = Paragraph(text, style)
@@ -152,24 +155,25 @@ def render(c, lines, styles):
         # H1
         if line.startswith("# "):
             h = draw_para(c, inline(line[2:]), styles["h1"], MARGIN_L, y)
-            y -= h + 1
+            y -= h + 1 * SCALE
 
         # H2 → rendered as uppercase section label
         elif line.startswith("## "):
-            gap(3)
-            hline(c, y); gap(4)
-            y -= section_head(c, line[3:], y) + 2
+            gap(6 * SCALE)          # separation from the block above
+            hline(c, y)
+            gap(8 * SCALE)          # drop clear of the cap height before the label
+            y -= section_head(c, line[3:], y) + 2 * SCALE
 
         # H3 → bold body
         elif line.startswith("### "):
             h = draw_para(c, f"<b>{inline(line[4:])}</b>", styles["body"], MARGIN_L, y)
-            y -= h + 2
+            y -= h + 2 * SCALE
 
         # HR
         elif line.strip() == "---":
-            gap(2)
+            gap(2 * SCALE)
             hline(c, y)
-            gap(3)
+            gap(3 * SCALE)
 
         # Table
         elif line.startswith("|"):
@@ -181,7 +185,7 @@ def render(c, lines, styles):
                 i += 1
             if rows:
                 h = draw_table(c, make_table(rows, styles), MARGIN_L, y)
-                y -= h + 4
+                y -= h + 4 * SCALE
             continue
 
         # Bullet list — collect run and render as workflow boxes if consecutive
@@ -190,9 +194,8 @@ def render(c, lines, styles):
             while i < len(lines) and lines[i].startswith(("* ", "- ")):
                 bullets.append(lines[i].rstrip("\n")[2:])
                 i += 1
-            _render_bullets(c, bullets, styles, y)
-            bullet_h = _bullets_height(len(bullets))
-            y -= bullet_h + 4
+            bullet_h = _render_bullets(c, bullets, styles, y)
+            y -= bullet_h + 4 * SCALE
             continue
 
         # Ordered list
@@ -203,35 +206,34 @@ def render(c, lines, styles):
                 items.append(m.group(1))
                 i += 1
             _render_steps(c, items, y)
-            y -= _steps_height() + 4
+            y -= _steps_height() + 4 * SCALE
             continue
 
         # Blank line
         elif not line.strip():
-            gap(3)
+            gap(3 * SCALE)
 
         # Regular paragraph
         else:
             h = draw_para(c, inline(line), styles["body"], MARGIN_L, y)
-            y -= h + 2
+            y -= h + 2 * SCALE
 
         i += 1
 
 
-def _render_bullets(c, items, styles, y):
+def _render_bullets(c, items, styles, top_y):
+    y = top_y
     for item in items:
         h = draw_para(c, "• " + inline(item), styles["bullet"], MARGIN_L, y)
-        y -= h + 1
-
-def _bullets_height(n):
-    return n * 11
+        y -= h + 1 * SCALE
+    return top_y - y
 
 def _steps_height():
-    return 16
+    return 16 * SCALE
 
 def _render_steps(c, steps, y):
     box_w = CONTENT_W / len(steps)
-    box_h = 15
+    box_h = 15 * SCALE
     by = y - box_h
     for i, step in enumerate(steps):
         bx = MARGIN_L + i * box_w
@@ -241,9 +243,10 @@ def _render_steps(c, steps, y):
         c.rect(bx, by, box_w - 1, box_h, fill=1, stroke=1)
         c.setFillColor(colors.black)
         label = f"{i+1}  {step}"
-        c.setFont("Helvetica", 7.2)
-        tw = c.stringWidth(label, "Helvetica", 7.2)
-        c.drawString(bx + (box_w - 1 - tw) / 2, by + (box_h - 7.2) / 2 + 1, label)
+        font_size = 7.2 * SCALE
+        c.setFont("Helvetica", font_size)
+        tw = c.stringWidth(label, "Helvetica", font_size)
+        c.drawString(bx + (box_w - 1 - tw) / 2, by + (box_h - font_size) / 2 + 1, label)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -253,7 +256,12 @@ def main():
     ap.add_argument("input",  help="Input .md file")
     ap.add_argument("-o", "--output", help="Output .pdf (default: same name as input)")
     ap.add_argument("--title", help="PDF metadata title (default: derived from filename)")
+    ap.add_argument("--scale", type=float, default=1.0,
+                     help="Font/spacing scale factor, e.g. 1.4 for larger text (default: 1.0)")
     args = ap.parse_args()
+
+    global SCALE
+    SCALE = args.scale
 
     src = Path(args.input).resolve()
     if not src.exists():
